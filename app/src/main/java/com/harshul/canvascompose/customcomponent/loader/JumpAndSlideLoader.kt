@@ -1,9 +1,12 @@
 package com.harshul.canvascompose.customcomponent.loader
 
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateValue
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -35,7 +38,7 @@ fun JumpAndSlideLoader(
         Color(0XFF22D4FB),
         Color(0XFF22D1FA)
     ),
-    itemRotationTime: Int = 500,
+    itemRotationTime: Int = 300,
     animationStartOffset: Int = 1000,
 ) {
     Box(
@@ -47,6 +50,7 @@ fun JumpAndSlideLoader(
         val totalAnimTime = noOfItems * itemRotationTime
         val rotationList = mutableListOf<Float>()
         val colorList = mutableListOf<Color>()
+        val sizeList = mutableListOf<Size>()
 
         for (i in 0 until noOfItems) {
             if (i == 0) {
@@ -81,6 +85,9 @@ fun JumpAndSlideLoader(
                 )
                 colorList.add(colorValue)
             } else {
+                val animStartTime = (i - 1) * itemRotationTime
+                val animEndTime = (i + 1) * itemRotationTime
+
                 //setting rotation values
                 val rotation by infiniteTransition.animateFloat(
                     initialValue = 0f,
@@ -88,8 +95,8 @@ fun JumpAndSlideLoader(
                     animationSpec = infiniteRepeatable(
                         animation = keyframes {
                             durationMillis = totalAnimTime
-                            0f at ((i - 1) * itemRotationTime)
-                            -180f at ((i + 1) * itemRotationTime)
+                            0f at animStartTime
+                            -180f at animEndTime
                         },
                         repeatMode = RepeatMode.Reverse,
                         initialStartOffset = StartOffset(offsetMillis = animationStartOffset)
@@ -107,8 +114,8 @@ fun JumpAndSlideLoader(
                     animationSpec = infiniteRepeatable(
                         animation = keyframes {
                             durationMillis = totalAnimTime
-                            initialColor at ((i - 1) * itemRotationTime)
-                            targetColor at ((i + 1) * itemRotationTime)
+                            initialColor at animStartTime
+                            targetColor at animEndTime
                         },
                         repeatMode = RepeatMode.Reverse,
                         initialStartOffset = StartOffset(offsetMillis = animationStartOffset)
@@ -116,6 +123,52 @@ fun JumpAndSlideLoader(
                     label = "main item color values"
                 )
                 colorList.add(colorValue)
+
+                //setting size values
+                val widthMultiple = Pair(0.5f, 1.5f) // (compressed, stretched)
+                val heightMultiple = Pair(0.5f, 1.5f)
+                val sizeValue by infiniteTransition.animateValue(
+                    initialValue = itemSize,
+                    targetValue = itemSize,
+                    typeConverter = TwoWayConverter<Size, AnimationVector2D>(
+                        convertToVector = { size ->
+                            AnimationVector2D(
+                                v1 = size.width,
+                                v2 = size.height
+                            )
+                        },
+                        convertFromVector = { vector ->
+                            Size(width = vector.v1, height = vector.v2)
+                        }
+                    ),
+                    animationSpec = infiniteRepeatable(
+                        animation = keyframes {
+                            durationMillis = totalAnimTime
+                            itemSize at animStartTime
+                            Size(
+                                width = itemSize.width * widthMultiple.second,
+                                height = itemSize.height * heightMultiple.first
+                            ) at (animStartTime + 100)
+                            Size(
+                                width = itemSize.width * widthMultiple.first,
+                                height = itemSize.height * heightMultiple.second
+                            ) at (animStartTime + 200)
+                            Size(
+                                width = itemSize.width * widthMultiple.first,
+                                height = itemSize.height * heightMultiple.second
+                            ) at (animEndTime)
+                            Size(
+                                width = itemSize.width * widthMultiple.second,
+                                height = itemSize.height * heightMultiple.first
+                            ) at (animEndTime + 100)
+                            itemSize at animEndTime + 200 //returning to original position
+                        },
+                        repeatMode = RepeatMode.Reverse,
+                        initialStartOffset = StartOffset(offsetMillis = animationStartOffset)
+                    ),
+                    label = "item size value"
+                )
+                sizeList.add(sizeValue)
             }
         }
 
@@ -129,8 +182,6 @@ fun JumpAndSlideLoader(
                     (firstBallX - i - 0.5f) * itemsSpacing
                 }
                 val yPosition = center.y - itemSize.height / 2
-                val rotationAxisX =
-                    center.x - (firstBallX * itemsSpacing) + (i - 0.5f) * itemsSpacing
 
                 if (i == 0) {
                     translate(left = rotationList[i]) {
@@ -145,13 +196,15 @@ fun JumpAndSlideLoader(
                         )
                     }
                 } else {
+                    val rotationAxisX =
+                        center.x - (firstBallX * itemsSpacing) + (i - 0.5f) * itemsSpacing
                     rotate(
                         degrees = rotationList[i],
                         pivot = Offset(x = rotationAxisX, y = center.y)
                     ) {
                         drawRoundRect(
                             color = colorList.getOrNull(i) ?: Color.Black,
-                            size = Size(width = itemSize.width, height = itemSize.height),
+                            size = sizeList.getOrNull(i - 1) ?: itemSize,
                             topLeft = Offset(
                                 x = xPosition,
                                 y = yPosition
