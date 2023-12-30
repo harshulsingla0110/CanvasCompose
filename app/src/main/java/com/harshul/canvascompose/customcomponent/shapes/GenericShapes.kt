@@ -15,29 +15,31 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun Circle(
+fun CircleShapeComposable(
     color: Color,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
+            .padding(top = 8.dp)
             .padding(horizontal = 4.dp)
-            .defaultMinSize(32.dp, 32.dp)
+            .defaultMinSize(64.dp, 64.dp)
             .clip(CircleShape)
             .background(color)
     )
 }
 
 @Composable
-fun Rectangle(
+fun RectangleShapeComposable(
     color: Color,
     modifier: Modifier = Modifier,
     shape: Shape = RectangleShape
 ) {
     Box(
         modifier = modifier
+            .padding(top = 8.dp)
             .padding(horizontal = 4.dp)
-            .defaultMinSize(32.dp, 32.dp)
+            .defaultMinSize(64.dp, 64.dp)
             .clip(shape = shape)
             .background(color)
     )

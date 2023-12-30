@@ -22,7 +22,7 @@ val TearDropShape = RoundedCornerShape(
 )
 
 @Composable
-fun TearDrop(modifier: Modifier = Modifier, color: Color, value: String) {
+fun TearDropShapeComposable(modifier: Modifier = Modifier, color: Color, value: String) {
     Surface(
         shape = TearDropShape,
         color = color,

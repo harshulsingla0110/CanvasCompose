@@ -26,7 +26,7 @@ val OutgoingMessage = RoundedCornerShape(
 )
 
 @Composable
-fun MessageBubble(
+fun MessageBubbleComposable(
     text: String,
     isIncoming: Boolean,
     modifier: Modifier = Modifier,

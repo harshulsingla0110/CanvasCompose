@@ -1,7 +1,6 @@
 package com.harshul.canvascompose.customcomponent.shapes
 
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -11,7 +10,7 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun Heart(modifier: Modifier = Modifier, color: Color) {
+fun HeartShapeComposable(modifier: Modifier = Modifier, color: Color) {
     Surface(
         modifier = modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
         color = color,
